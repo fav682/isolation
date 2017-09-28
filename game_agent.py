@@ -170,6 +170,7 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
+
     def minimax(self, game, depth):
         """Implement depth-limited minimax search algorithm as described in
         the lectures.
@@ -209,13 +210,43 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
+
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
+        def min_max_search(self, board, depth, minmax):
+            """     
+                Todo: need to complete this doc string
+            """
+            if self.time_left() < self.TIMER_THRESHOLD:
+                raise SearchTimeout()
+
+            if minmax: #true when set to 1 for max
+                if depth == 0:
+                    return self.score(board, self)
+                minmax ^= 1 #flip parity bit
+                v = float("-inf")
+                for move in board.get_legal_moves():
+                    v = max(v,min_max_search(self, board.forecast_move(move), depth -1, minmax))
+                return v
+            if depth == 0:
+                return self.score(board,self)
+            minmax ^=1
+            v = float("inf")
+            for move in board.get_legal_moves():
+                v = min(v,min_max_search(self,board.forecast_move(move),depth -1,minmax))
+            return v
+
         # TODO: finish this function!
-        raise NotImplementedError
+        MIN_MAX_PARITY = 0 #set to 0 for min and 1 for max
+        
+        return max(game.get_legal_moves(),
+               key=lambda m: min_max_search(self, game.forecast_move(m), depth-1, MIN_MAX_PARITY))
+       # raise NotImplementedError
+    
+    
 
-
+    
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
     search with alpha-beta pruning. You must finish and test this player to
