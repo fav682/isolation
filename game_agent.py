@@ -311,7 +311,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         openMoves = game.get_legal_moves()
         if len(openMoves) == 0:
             return (-1,-1)
-        best_move = openMoves[0]
+        bestMove = openMoves[0]
 
         try:
             # The try/except block will automatically catch the exception
