@@ -134,7 +134,6 @@ class IsolationPlayer:
         self.score = score_fn
         self.time_left = None
         self.TIMER_THRESHOLD = timeout
-        self.alpha_move = (-1,1)
 
 
 class MinimaxPlayer(IsolationPlayer):
@@ -392,9 +391,6 @@ class AlphaBetaPlayer(IsolationPlayer):
                     v = max(v,alpha_beta_search(self, board.forecast_move(move), depth -1, minmax, alpha, beta))
                     if v >= beta:
                         return v
-                    
-                    if v > alpha and self.search_depth == depth:
-                        self.alpha_move = move
                     alpha = max(alpha,v)
                 return v
             if depth == 0:
@@ -408,7 +404,16 @@ class AlphaBetaPlayer(IsolationPlayer):
                 beta = min(beta,v)
             return v
         
-        MIN_MAX_PARITY = 1 #set to 0 for min and 1 for max
-        alpha_beta_search(self,game,depth,MIN_MAX_PARITY,alpha,beta)
-        return self.alpha_move           
-        
+        MIN_MAX_PARITY = 0 #set to 0 for min and 1 for max
+        maxValue = float("-inf")
+        playerMoves = game.get_legal_moves()
+        bestMove = playerMoves[0]
+        for move in playerMoves:
+            moveValue = alpha_beta_search(self, game.forecast_move(move), depth - 1, MIN_MAX_PARITY, alpha, beta)
+            if moveValue > maxValue:
+                maxValue = moveValue
+                bestMove = move
+            if moveValue >= beta:
+                return bestMove
+            alpha = max(alpha, maxValue)
+        return bestMove
