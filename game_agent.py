@@ -333,82 +333,45 @@ class AlphaBetaPlayer(IsolationPlayer):
 
         This should be a modified version of ALPHA-BETA-SEARCH in the AIMA text
         https://github.com/aimacode/aima-pseudocode/blob/master/md/Alpha-Beta-Search.md
-
-        **********************************************************************
-            You MAY add additional methods to this class, or define helper
-                 functions to implement the required functionality.
-        **********************************************************************
-
-        Parameters
-        ----------
-        game : isolation.Board
-            An instance of the Isolation game `Board` class representing the
-            current game state
-
-        depth : int
-            Depth is an integer representing the maximum number of plies to
-            search in the game tree before aborting
-
-        alpha : float
-            Alpha limits the lower bound of search on minimizing layers
-
-        beta : float
-            Beta limits the upper bound of search on maximizing layers
-
-        Returns
-        -------
-        (int, int)
-            The board coordinates of the best move found in the current search;
-            (-1, -1) if there are no legal moves
-
-        Notes
-        -----
-            (1) You MUST use the `self.score()` method for board evaluation
-                to pass the project tests; you cannot call any other evaluation
-                function directly.
-
-            (2) If you use any helper functions (e.g., as shown in the AIMA
-                pseudocode) then you must copy the timer check into the top of
-                each helper function or else your agent will timeout during
-                testing.
         """
+        best_move = (-1, -1)
+        maxscore = float("-inf")
+        for m in game.get_legal_moves():
+            score = self.minvalue(game.forecast_move(m), depth-1, alpha, beta)
+            if maxscore < score:
+                maxscore = score;
+                best_move = m
 
+        return best_move
+        
+    def maxvalue(self, board, depth, alpha, beta):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
-        
-        def alpha_beta_search(self, board, depth, minmax, alpha, beta):
-            """     
-                Todo: need to complete this doc string
-                Helper function for alphabeta function
-            """
-            if self.time_left() < self.TIMER_THRESHOLD:
-                raise SearchTimeout()
-            if minmax: #true when set to 1 for max
-                if depth == 0:
-                    return self.score(board, self)
-                minmax ^= 1 #flip parity bit to represent min
-                v = float("-inf")
-                for move in board.get_legal_moves():
-                    v = max(v,alpha_beta_search(self, board.forecast_move(move), depth -1, minmax, alpha, beta))
-                    if v >= beta:
-                        return v
-                    
-                    if v > alpha and self.search_depth == depth:
-                        self.alpha_move = move
-                    alpha = max(alpha,v)
+
+        if depth == 0 or len(board.get_legal_moves()) == 0:
+            return self.score(board, self)
+
+        v = float("-inf")
+        for move in board.get_legal_moves():
+            v = max(v, self.minvalue(board.forecast_move(move), depth -1, alpha, beta))
+            if v >= beta:
                 return v
-            if depth == 0:
-                return self.score(board,self)
-            minmax ^=1
-            v = float("inf")
-            for move in board.get_legal_moves():
-                v= min(v,alpha_beta_search(self,board.forecast_move(move), depth -1, minmax, alpha, beta))
-                if v <= alpha:
-                    return v
-                beta = min(beta,v)
-            return v
-        
-        MIN_MAX_PARITY = 1 #set to 0 for min and 1 for max
-        alpha_beta_search(self,game,depth,MIN_MAX_PARITY,alpha,beta)
-        return self.alpha_move           
-        
+            
+            alpha = max(alpha,v)
+        return v
+
+    def minvalue(self, board, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0 or len(board.get_legal_moves()) == 0:
+            return self.score(board,self)
+
+        v = float("inf")
+        for move in board.get_legal_moves():
+            v= min(v, self.maxvalue(board.forecast_move(move), depth -1, alpha, beta))
+            if v <= alpha:
+                return v
+
+            beta = min(beta,v)
+        return v
